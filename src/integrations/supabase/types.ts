@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      garden_items: {
+        Row: {
+          added_at: string
+          id: string
+          notes: string | null
+          plant_id: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          notes?: string | null
+          plant_id: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          notes?: string | null
+          plant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "garden_items_plant_id_fkey"
+            columns: ["plant_id"]
+            isOneToOne: false
+            referencedRelation: "plants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plants: {
+        Row: {
+          care_instructions: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          latin: string | null
+          light_requirements: string | null
+          name: string
+          updated_at: string
+          watering_frequency: string | null
+        }
+        Insert: {
+          care_instructions?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          latin?: string | null
+          light_requirements?: string | null
+          name: string
+          updated_at?: string
+          watering_frequency?: string | null
+        }
+        Update: {
+          care_instructions?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          latin?: string | null
+          light_requirements?: string | null
+          name?: string
+          updated_at?: string
+          watering_frequency?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

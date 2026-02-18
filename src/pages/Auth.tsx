@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Leaf } from "lucide-react";
+import { Leaf, ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -27,14 +27,14 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (isLogin) {
+    if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       } else {
         navigate("/");
       }
-    } else {
+    } else if (mode === "signup") {
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -46,9 +46,23 @@ const Auth = () => {
         toast({ title: "Account created!", description: "You are now signed in." });
         navigate("/");
       }
+    } else if (mode === "forgot") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        toast({ title: "Failed to send reset email", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Reset email sent!", description: "Check your inbox for a password reset link." });
+        setMode("login");
+      }
     }
+
     setLoading(false);
   };
+
+  const titleMap = { login: "Welcome Back", signup: "Create Account", forgot: "Reset Password" };
+  const descMap = { login: "Sign in to your account", signup: "Join us today", forgot: "We'll send you a reset link" };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -58,16 +72,12 @@ const Auth = () => {
             <Leaf className="w-6 h-6 text-primary" />
             <span className="font-display text-xl font-semibold tracking-wide">VELVET</span>
           </div>
-          <CardTitle className="font-display text-2xl">
-            {isLogin ? "Welcome Back" : "Create Account"}
-          </CardTitle>
-          <CardDescription className="font-body">
-            {isLogin ? "Sign in to your account" : "Join us today"}
-          </CardDescription>
+          <CardTitle className="font-display text-2xl">{titleMap[mode]}</CardTitle>
+          <CardDescription className="font-body">{descMap[mode]}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
+            {mode === "signup" && (
               <div className="space-y-2">
                 <Label htmlFor="displayName" className="font-body">Display Name</Label>
                 <Input
@@ -75,7 +85,7 @@ const Auth = () => {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Your name"
-                  required={!isLogin}
+                  required
                 />
               </div>
             )}
@@ -90,29 +100,52 @@ const Auth = () => {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password" className="font-body">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                minLength={6}
-              />
-            </div>
+            {mode !== "forgot" && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="font-body">Password</Label>
+                  {mode === "login" && (
+                    <button
+                      type="button"
+                      onClick={() => setMode("forgot")}
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors font-body"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  minLength={6}
+                />
+              </div>
+            )}
             <Button type="submit" className="w-full font-body tracking-widest uppercase text-xs" disabled={loading}>
-              {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
+              {loading ? "Loading..." : mode === "login" ? "Sign In" : mode === "signup" ? "Sign Up" : "Send Reset Link"}
             </Button>
           </form>
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-body"
-            >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-            </button>
+
+          <div className="mt-6 text-center space-y-2">
+            {mode === "forgot" ? (
+              <button
+                onClick={() => setMode("login")}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors font-body flex items-center gap-1 mx-auto"
+              >
+                <ArrowLeft className="w-3 h-3" /> Back to Sign In
+              </button>
+            ) : (
+              <button
+                onClick={() => setMode(mode === "login" ? "signup" : "login")}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors font-body"
+              >
+                {mode === "login" ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+              </button>
+            )}
           </div>
         </CardContent>
       </Card>

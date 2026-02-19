@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,8 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Leaf, Shield, Users, ArrowLeft, Trash2, Plus, X } from "lucide-react";
+import { Leaf, Shield, Users, ArrowLeft, Trash2, Plus, X, Upload, Image as ImageIcon, Link } from "lucide-react";
 
 interface UserProfile {
   user_id: string;
@@ -33,6 +34,9 @@ interface Plant {
   light_requirements: string | null;
   watering_frequency: string | null;
   image_url: string | null;
+  category: string | null;
+  plant_type: string | null;
+  soil_type: string | null;
   created_at: string;
 }
 
@@ -44,7 +48,16 @@ const defaultPlantForm = {
   light_requirements: "",
   watering_frequency: "",
   image_url: "",
+  category: "",
+  plant_type: "",
+  soil_type: "",
 };
+
+const CATEGORIES = ["Tropical", "Succulent", "Fern", "Orchid", "Herb", "Cactus", "Vine", "Tree", "Shrub", "Aquatic"];
+const PLANT_TYPES = ["Indoor", "Outdoor", "Both"];
+const WATERING_OPTIONS = ["Daily", "Every 2–3 days", "Weekly", "Bi-weekly", "Monthly", "When soil is dry"];
+const SUNLIGHT_OPTIONS = ["Full Sun", "Partial Sun", "Bright Indirect", "Low Light", "Shade"];
+const SOIL_TYPES = ["Well-draining", "Sandy", "Clay", "Loamy", "Peat", "Cactus mix", "Orchid bark", "Potting mix"];
 
 const Admin = () => {
   const { user, isAdmin, isLoading, signOut } = useAuth();
@@ -57,6 +70,10 @@ const Admin = () => {
   const [showAddPlant, setShowAddPlant] = useState(false);
   const [plantForm, setPlantForm] = useState(defaultPlantForm);
   const [addingPlant, setAddingPlant] = useState(false);
+  const [imageMode, setImageMode] = useState<"upload" | "url">("upload");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isLoading && (!user || !isAdmin)) navigate("/");
@@ -75,7 +92,7 @@ const Admin = () => {
     ]);
     if (profilesRes.data) setProfiles(profilesRes.data);
     if (rolesRes.data) setRoles(rolesRes.data as UserRole[]);
-    if (plantsRes.data) setPlants(plantsRes.data);
+    if (plantsRes.data) setPlants(plantsRes.data as Plant[]);
     setLoading(false);
   };
 
@@ -108,25 +125,64 @@ const Admin = () => {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max 5MB allowed.", variant: "destructive" });
+      return;
+    }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return null;
+    const ext = imageFile.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from("plant-images").upload(fileName, imageFile);
+    if (error) {
+      toast({ title: "Image upload failed", description: error.message, variant: "destructive" });
+      return null;
+    }
+    const { data } = supabase.storage.from("plant-images").getPublicUrl(fileName);
+    return data.publicUrl;
+  };
+
   const addPlant = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!plantForm.name.trim()) return;
     setAddingPlant(true);
+
+    let finalImageUrl: string | null = null;
+    if (imageMode === "upload" && imageFile) {
+      finalImageUrl = await uploadImage();
+      if (!finalImageUrl) { setAddingPlant(false); return; }
+    } else if (imageMode === "url" && plantForm.image_url.trim()) {
+      finalImageUrl = plantForm.image_url.trim();
+    }
+
     const { error } = await supabase.from("plants").insert({
       name: plantForm.name.trim(),
       latin: plantForm.latin.trim() || null,
       description: plantForm.description.trim() || null,
       care_instructions: plantForm.care_instructions.trim() || null,
-      light_requirements: plantForm.light_requirements.trim() || null,
-      watering_frequency: plantForm.watering_frequency.trim() || null,
-      image_url: plantForm.image_url.trim() || null,
+      light_requirements: plantForm.light_requirements || null,
+      watering_frequency: plantForm.watering_frequency || null,
+      image_url: finalImageUrl,
+      category: plantForm.category || null,
+      plant_type: plantForm.plant_type || null,
+      soil_type: plantForm.soil_type || null,
       created_by: user?.id,
     });
+
     if (error) {
       toast({ title: "Failed to add plant", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Plant added! 🌿" });
       setPlantForm(defaultPlantForm);
+      setImageFile(null);
+      setImagePreview(null);
       setShowAddPlant(false);
       fetchData();
     }
@@ -141,6 +197,14 @@ const Admin = () => {
       toast({ title: "Plant deleted" });
       setPlants((prev) => prev.filter((p) => p.id !== plantId));
     }
+  };
+
+  const resetForm = () => {
+    setPlantForm(defaultPlantForm);
+    setImageFile(null);
+    setImagePreview(null);
+    setImageMode("upload");
+    setShowAddPlant(false);
   };
 
   const getUserRole = (userId: string) => roles.find((r) => r.user_id === userId)?.role ?? "user";
@@ -301,7 +365,7 @@ const Admin = () => {
               <p className="text-muted-foreground font-body text-sm">{plants.length} plants in catalogue</p>
               <Button
                 size="sm"
-                onClick={() => setShowAddPlant(!showAddPlant)}
+                onClick={() => showAddPlant ? resetForm() : setShowAddPlant(true)}
                 className="font-body text-xs tracking-widest uppercase"
               >
                 {showAddPlant ? <><X className="w-3 h-3 mr-1" /> Cancel</> : <><Plus className="w-3 h-3 mr-1" /> Add Plant</>}
@@ -314,36 +378,204 @@ const Admin = () => {
                   <CardTitle className="font-display text-lg">Add New Plant</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={addPlant} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <form onSubmit={addPlant} className="space-y-6">
+
+                    {/* Plant Name */}
                     <div className="space-y-2">
-                      <Label className="font-body text-xs">Plant Name *</Label>
-                      <Input value={plantForm.name} onChange={(e) => setPlantForm((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Monstera" required />
+                      <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Plant Name *</Label>
+                      <Input
+                        value={plantForm.name}
+                        onChange={(e) => setPlantForm((p) => ({ ...p, name: e.target.value }))}
+                        placeholder="e.g. Monstera"
+                        required
+                      />
                     </div>
+
+                    {/* Plant Image */}
+                    <div className="space-y-3">
+                      <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Plant Image</Label>
+
+                      {imageMode === "upload" ? (
+                        <div className="space-y-3">
+                          {/* Drop zone */}
+                          <div
+                            className="relative border-2 border-dashed border-border hover:border-primary/50 rounded-lg transition-colors cursor-pointer bg-muted/30"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/png,image/jpeg,image/jpg,image/webp"
+                              className="hidden"
+                              onChange={handleFileChange}
+                            />
+                            {imagePreview ? (
+                              <div className="relative">
+                                <img
+                                  src={imagePreview}
+                                  alt="Preview"
+                                  className="w-full h-48 object-cover rounded-lg"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); setImageFile(null); setImagePreview(null); }}
+                                  className="absolute top-2 right-2 bg-background/80 rounded-full p-1 hover:bg-background"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center py-10 gap-3">
+                                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                                  <Upload className="w-5 h-5 text-muted-foreground" />
+                                </div>
+                                <div className="text-center">
+                                  <p className="font-body text-sm font-medium">Upload plant image</p>
+                                  <p className="font-body text-xs text-muted-foreground mt-1">PNG, JPG up to 5MB</p>
+                                </div>
+                                <Button type="button" variant="outline" size="sm" className="font-body text-xs">
+                                  Choose File
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Switch to URL */}
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 h-px bg-border" />
+                            <span className="text-muted-foreground text-xs font-body">or</span>
+                            <div className="flex-1 h-px bg-border" />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setImageMode("url")}
+                            className="font-body text-xs text-muted-foreground hover:text-foreground w-full"
+                          >
+                            <Link className="w-3 h-3 mr-2" />
+                            Enter image URL instead
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <Input
+                              value={plantForm.image_url}
+                              onChange={(e) => setPlantForm((p) => ({ ...p, image_url: e.target.value }))}
+                              placeholder="https://example.com/plant.jpg"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => { setImageMode("upload"); setPlantForm(p => ({ ...p, image_url: "" })); }}
+                              className="text-muted-foreground hover:text-foreground shrink-0"
+                            >
+                              <ImageIcon className="w-4 h-4 mr-1" /> Upload
+                            </Button>
+                          </div>
+                          {plantForm.image_url && (
+                            <img src={plantForm.image_url} alt="Preview" className="w-full h-40 object-cover rounded-lg mt-2" onError={(e) => (e.currentTarget.style.display = "none")} />
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Two-column grid for dropdowns */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Category */}
+                      <div className="space-y-2">
+                        <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Category</Label>
+                        <Select value={plantForm.category} onValueChange={(v) => setPlantForm(p => ({ ...p, category: v }))}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Type */}
+                      <div className="space-y-2">
+                        <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Type</Label>
+                        <Select value={plantForm.plant_type} onValueChange={(v) => setPlantForm(p => ({ ...p, plant_type: v }))}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Indoor / Outdoor" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PLANT_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Watering Schedule */}
+                      <div className="space-y-2">
+                        <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Watering Schedule</Label>
+                        <Select value={plantForm.watering_frequency} onValueChange={(v) => setPlantForm(p => ({ ...p, watering_frequency: v }))}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select frequency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {WATERING_OPTIONS.map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Sunlight Requirement */}
+                      <div className="space-y-2">
+                        <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Sunlight Requirement</Label>
+                        <Select value={plantForm.light_requirements} onValueChange={(v) => setPlantForm(p => ({ ...p, light_requirements: v }))}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select sunlight" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {SUNLIGHT_OPTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Soil Type */}
+                      <div className="space-y-2 md:col-span-2">
+                        <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Soil Type</Label>
+                        <Select value={plantForm.soil_type} onValueChange={(v) => setPlantForm(p => ({ ...p, soil_type: v }))}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select soil type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {SOIL_TYPES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Latin Name */}
                     <div className="space-y-2">
-                      <Label className="font-body text-xs">Latin Name</Label>
-                      <Input value={plantForm.latin} onChange={(e) => setPlantForm((p) => ({ ...p, latin: e.target.value }))} placeholder="e.g. Monstera deliciosa" />
+                      <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Latin Name</Label>
+                      <Input
+                        value={plantForm.latin}
+                        onChange={(e) => setPlantForm((p) => ({ ...p, latin: e.target.value }))}
+                        placeholder="e.g. Monstera deliciosa"
+                      />
                     </div>
+
+                    {/* Description */}
                     <div className="space-y-2">
-                      <Label className="font-body text-xs">Light Requirements</Label>
-                      <Input value={plantForm.light_requirements} onChange={(e) => setPlantForm((p) => ({ ...p, light_requirements: e.target.value }))} placeholder="e.g. Bright indirect light" />
+                      <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Description <span className="normal-case">(Optional)</span></Label>
+                      <Textarea
+                        value={plantForm.description}
+                        onChange={(e) => setPlantForm((p) => ({ ...p, description: e.target.value }))}
+                        placeholder="Brief description of this plant…"
+                        rows={3}
+                      />
                     </div>
-                    <div className="space-y-2">
-                      <Label className="font-body text-xs">Watering Frequency</Label>
-                      <Input value={plantForm.watering_frequency} onChange={(e) => setPlantForm((p) => ({ ...p, watering_frequency: e.target.value }))} placeholder="e.g. Water weekly" />
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                      <Label className="font-body text-xs">Image URL</Label>
-                      <Input value={plantForm.image_url} onChange={(e) => setPlantForm((p) => ({ ...p, image_url: e.target.value }))} placeholder="https://..." />
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                      <Label className="font-body text-xs">Description</Label>
-                      <Textarea value={plantForm.description} onChange={(e) => setPlantForm((p) => ({ ...p, description: e.target.value }))} placeholder="Brief description…" rows={2} />
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                      <Label className="font-body text-xs">Care Instructions</Label>
-                      <Textarea value={plantForm.care_instructions} onChange={(e) => setPlantForm((p) => ({ ...p, care_instructions: e.target.value }))} placeholder="Care tips…" rows={2} />
-                    </div>
-                    <div className="md:col-span-2 flex justify-end">
+
+                    {/* Actions */}
+                    <div className="flex justify-end gap-3 pt-2 border-t border-border/50">
+                      <Button type="button" variant="outline" onClick={resetForm} className="font-body text-xs tracking-widest uppercase">
+                        Cancel
+                      </Button>
                       <Button type="submit" disabled={addingPlant} className="font-body text-xs tracking-widest uppercase">
                         {addingPlant ? "Adding…" : "Add Plant"}
                       </Button>
@@ -353,6 +585,7 @@ const Admin = () => {
               </Card>
             )}
 
+            {/* Plants Table */}
             <Card className="border-border/50 bg-card/80">
               <CardContent className="pt-6">
                 {plants.length === 0 ? (
@@ -362,19 +595,35 @@ const Admin = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-body">Name</TableHead>
-                        <TableHead className="font-body">Latin</TableHead>
-                        <TableHead className="font-body">Light</TableHead>
+                        <TableHead className="font-body">Category</TableHead>
+                        <TableHead className="font-body">Type</TableHead>
                         <TableHead className="font-body">Watering</TableHead>
+                        <TableHead className="font-body">Sunlight</TableHead>
                         <TableHead className="font-body text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {plants.map((plant) => (
                         <TableRow key={plant.id}>
-                          <TableCell className="font-body font-medium">{plant.name}</TableCell>
-                          <TableCell className="font-body text-muted-foreground italic text-sm">{plant.latin || "—"}</TableCell>
-                          <TableCell className="font-body text-sm">{plant.light_requirements || "—"}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              {plant.image_url ? (
+                                <img src={plant.image_url} alt={plant.name} className="w-8 h-8 rounded object-cover" />
+                              ) : (
+                                <div className="w-8 h-8 rounded bg-muted flex items-center justify-center">
+                                  <Leaf className="w-4 h-4 text-muted-foreground" />
+                                </div>
+                              )}
+                              <div>
+                                <p className="font-body font-medium text-sm">{plant.name}</p>
+                                {plant.latin && <p className="font-body text-xs text-muted-foreground italic">{plant.latin}</p>}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-body text-sm">{plant.category || "—"}</TableCell>
+                          <TableCell className="font-body text-sm">{plant.plant_type || "—"}</TableCell>
                           <TableCell className="font-body text-sm">{plant.watering_frequency || "—"}</TableCell>
+                          <TableCell className="font-body text-sm">{plant.light_requirements || "—"}</TableCell>
                           <TableCell className="text-right">
                             <Button
                               variant="destructive"

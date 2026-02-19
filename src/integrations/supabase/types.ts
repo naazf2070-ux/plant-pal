@@ -49,6 +49,7 @@ export type Database = {
       plants: {
         Row: {
           care_instructions: string | null
+          category: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -57,11 +58,14 @@ export type Database = {
           latin: string | null
           light_requirements: string | null
           name: string
+          plant_type: string | null
+          soil_type: string | null
           updated_at: string
           watering_frequency: string | null
         }
         Insert: {
           care_instructions?: string | null
+          category?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -70,11 +74,14 @@ export type Database = {
           latin?: string | null
           light_requirements?: string | null
           name: string
+          plant_type?: string | null
+          soil_type?: string | null
           updated_at?: string
           watering_frequency?: string | null
         }
         Update: {
           care_instructions?: string | null
+          category?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -83,6 +90,8 @@ export type Database = {
           latin?: string | null
           light_requirements?: string | null
           name?: string
+          plant_type?: string | null
+          soil_type?: string | null
           updated_at?: string
           watering_frequency?: string | null
         }

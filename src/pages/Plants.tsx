@@ -3,10 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Search, Leaf, Plus, Check, Droplets, Sun, Sprout, TreeDeciduous } from "lucide-react";
+import { Search, Leaf, Plus, Check, Droplets, Sun } from "lucide-react";
 
 interface Plant {
   id: string;
@@ -128,101 +126,90 @@ const Plants = () => {
             <p className="text-muted-foreground font-body">No plants found.</p>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {filtered.map((plant) => {
               const inGarden = gardenIds.has(plant.id);
               return (
                 <div
                   key={plant.id}
-                  className="group bg-gradient-card rounded-sm border border-border hover:border-primary/40 transition-all duration-300 overflow-hidden flex flex-col"
+                  className="group relative bg-card rounded-2xl border border-border/60 hover:border-primary/30 transition-all duration-300 overflow-hidden flex flex-col"
+                  style={{ boxShadow: "0 4px 24px 0 hsl(0 0% 0% / 0.4)" }}
                 >
-                  {/* Image */}
-                  {plant.image_url ? (
-                    <div className="aspect-[4/3] overflow-hidden">
+                  {/* Image area — contained, centered like the reference */}
+                  <div className="relative flex items-center justify-center bg-muted/20 pt-6 px-4 pb-2 min-h-[180px]">
+                    {plant.image_url ? (
                       <img
                         src={plant.image_url}
                         alt={plant.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        className="h-40 w-auto object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500"
                       />
-                    </div>
-                  ) : (
-                    <div className="aspect-[4/3] bg-muted/30 flex items-center justify-center">
-                      <Leaf className="w-14 h-14 text-muted-foreground/20" />
-                    </div>
-                  )}
-
-                  <div className="p-5 flex flex-col flex-1 space-y-3">
-                    {/* Name + category row */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="text-xl font-display font-semibold leading-tight">{plant.name}</h3>
-                        {plant.latin && <p className="text-primary text-sm italic font-display mt-0.5">{plant.latin}</p>}
-                      </div>
-                      {plant.category && (
-                        <Badge className="shrink-0 text-xs font-body bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
-                          {plant.category}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Type badge */}
-                    {plant.plant_type && (
-                      <div>
-                        <Badge variant="outline" className="text-xs font-body">
-                          <TreeDeciduous className="w-3 h-3 mr-1" />
-                          {plant.plant_type}
-                        </Badge>
-                      </div>
+                    ) : (
+                      <Leaf className="w-16 h-16 text-muted-foreground/20" />
                     )}
+                    {/* Category pill top-right */}
+                    {plant.category && (
+                      <span className="absolute top-3 right-3 text-[10px] tracking-wider uppercase font-body bg-primary/15 text-primary border border-primary/20 rounded-full px-2 py-0.5">
+                        {plant.category}
+                      </span>
+                    )}
+                  </div>
 
-                    {/* Description */}
+                  {/* Info */}
+                  <div className="px-4 pt-3 pb-4 flex flex-col flex-1">
+                    <h3 className="text-base font-display font-semibold leading-tight">{plant.name}</h3>
+                    {plant.latin && (
+                      <p className="text-primary/70 text-xs italic font-display mt-0.5">{plant.latin}</p>
+                    )}
                     {plant.description && (
-                      <p className="text-muted-foreground text-sm font-light line-clamp-2">{plant.description}</p>
+                      <p className="text-muted-foreground text-xs font-body mt-2 line-clamp-2 leading-relaxed">
+                        {plant.description}
+                      </p>
                     )}
 
-                    {/* Care info grid */}
-                    {(plant.light_requirements || plant.watering_frequency || plant.soil_type) && (
-                      <div className="grid grid-cols-1 gap-1.5 border border-border/50 rounded-sm p-3 bg-muted/20">
+                    {/* Care pills row */}
+                    {(plant.light_requirements || plant.watering_frequency) && (
+                      <div className="flex flex-wrap gap-1.5 mt-3">
                         {plant.light_requirements && (
-                          <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-                            <Sun className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span>{plant.light_requirements}</span>
-                          </div>
+                          <span className="flex items-center gap-1 text-[10px] font-body text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">
+                            <Sun className="w-2.5 h-2.5 text-primary" />
+                            {plant.light_requirements}
+                          </span>
                         )}
                         {plant.watering_frequency && (
-                          <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-                            <Droplets className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span>{plant.watering_frequency}</span>
-                          </div>
-                        )}
-                        {plant.soil_type && (
-                          <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-                            <Sprout className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span>{plant.soil_type} soil</span>
-                          </div>
+                          <span className="flex items-center gap-1 text-[10px] font-body text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">
+                            <Droplets className="w-2.5 h-2.5 text-primary" />
+                            {plant.watering_frequency}
+                          </span>
                         )}
                       </div>
                     )}
 
-                    {/* Spacer */}
                     <div className="flex-1" />
 
-                    {/* Add to garden button */}
-                    <Button
-                      size="sm"
-                      variant={inGarden ? "secondary" : "default"}
-                      className="w-full font-body text-xs tracking-widest uppercase mt-auto"
-                      onClick={() => !inGarden && addToGarden(plant.id)}
-                      disabled={inGarden || addingId === plant.id}
-                    >
-                      {inGarden ? (
-                        <><Check className="w-3 h-3 mr-1" /> In My Garden</>
-                      ) : addingId === plant.id ? (
-                        "Adding…"
-                      ) : (
-                        <><Plus className="w-3 h-3 mr-1" /> Add to My Garden</>
-                      )}
-                    </Button>
+                    {/* Bottom row: type tag + add button */}
+                    <div className="flex items-center justify-between mt-4">
+                      <span className="text-xs font-body text-muted-foreground">
+                        {plant.plant_type || "—"}
+                      </span>
+                      <button
+                        onClick={() => !inGarden && addToGarden(plant.id)}
+                        disabled={inGarden || addingId === plant.id}
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 border ${
+                          inGarden
+                            ? "bg-primary/10 border-primary/30 text-primary cursor-default"
+                            : "bg-card border-border hover:bg-primary hover:border-primary hover:text-primary-foreground text-muted-foreground"
+                        }`}
+                        title={inGarden ? "In My Garden" : "Add to My Garden"}
+                      >
+                        {inGarden ? (
+                          <Check className="w-4 h-4" />
+                        ) : addingId === plant.id ? (
+                          <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Plus className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               );

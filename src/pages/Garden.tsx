@@ -4,9 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Leaf, Trash2, Search, Droplets, Sun, Sprout, TreeDeciduous, CalendarDays } from "lucide-react";
+import { Leaf, Trash2, Search, Droplets, Sun, CalendarDays } from "lucide-react";
 
 interface GardenItem {
   id: string;
@@ -95,101 +94,85 @@ const Garden = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {items.map((item) => {
               const plant = item.plants;
               return (
                 <div
                   key={item.id}
-                  className="group bg-gradient-card rounded-sm border border-border hover:border-primary/40 transition-all duration-300 overflow-hidden flex flex-col"
+                  className="group relative bg-card rounded-2xl border border-border/60 hover:border-primary/30 transition-all duration-300 overflow-hidden flex flex-col"
+                  style={{ boxShadow: "0 4px 24px 0 hsl(0 0% 0% / 0.4)" }}
                 >
-                  {/* Image */}
-                  {plant.image_url ? (
-                    <div className="aspect-[4/3] overflow-hidden">
+                  {/* Image area */}
+                  <div className="relative flex items-center justify-center bg-muted/20 pt-6 px-4 pb-2 min-h-[180px]">
+                    {plant.image_url ? (
                       <img
                         src={plant.image_url}
                         alt={plant.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        className="h-40 w-auto object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500"
                       />
-                    </div>
-                  ) : (
-                    <div className="aspect-[4/3] bg-muted/30 flex items-center justify-center">
-                      <Leaf className="w-14 h-14 text-muted-foreground/20" />
-                    </div>
-                  )}
-
-                  <div className="p-5 flex flex-col flex-1 space-y-3">
-                    {/* Name + category */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="text-xl font-display font-semibold leading-tight">{plant.name}</h3>
-                        {plant.latin && <p className="text-primary text-sm italic font-display mt-0.5">{plant.latin}</p>}
-                      </div>
-                      {plant.category && (
-                        <Badge className="shrink-0 text-xs font-body bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
-                          {plant.category}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Type badge */}
-                    {plant.plant_type && (
-                      <div>
-                        <Badge variant="outline" className="text-xs font-body">
-                          <TreeDeciduous className="w-3 h-3 mr-1" />
-                          {plant.plant_type}
-                        </Badge>
-                      </div>
+                    ) : (
+                      <Leaf className="w-16 h-16 text-muted-foreground/20" />
                     )}
+                    {/* Category pill */}
+                    {plant.category && (
+                      <span className="absolute top-3 right-3 text-[10px] tracking-wider uppercase font-body bg-primary/15 text-primary border border-primary/20 rounded-full px-2 py-0.5">
+                        {plant.category}
+                      </span>
+                    )}
+                  </div>
 
-                    {/* Description */}
+                  {/* Info */}
+                  <div className="px-4 pt-3 pb-4 flex flex-col flex-1">
+                    <h3 className="text-base font-display font-semibold leading-tight">{plant.name}</h3>
+                    {plant.latin && (
+                      <p className="text-primary/70 text-xs italic font-display mt-0.5">{plant.latin}</p>
+                    )}
                     {plant.description && (
-                      <p className="text-muted-foreground text-sm font-light line-clamp-2">{plant.description}</p>
+                      <p className="text-muted-foreground text-xs font-body mt-2 line-clamp-2 leading-relaxed">
+                        {plant.description}
+                      </p>
                     )}
 
-                    {/* Care info */}
-                    {(plant.light_requirements || plant.watering_frequency || plant.soil_type) && (
-                      <div className="grid grid-cols-1 gap-1.5 border border-border/50 rounded-sm p-3 bg-muted/20">
+                    {/* Care pills */}
+                    {(plant.light_requirements || plant.watering_frequency) && (
+                      <div className="flex flex-wrap gap-1.5 mt-3">
                         {plant.light_requirements && (
-                          <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-                            <Sun className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span>{plant.light_requirements}</span>
-                          </div>
+                          <span className="flex items-center gap-1 text-[10px] font-body text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">
+                            <Sun className="w-2.5 h-2.5 text-primary" />
+                            {plant.light_requirements}
+                          </span>
                         )}
                         {plant.watering_frequency && (
-                          <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-                            <Droplets className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span>{plant.watering_frequency}</span>
-                          </div>
-                        )}
-                        {plant.soil_type && (
-                          <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-                            <Sprout className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span>{plant.soil_type} soil</span>
-                          </div>
+                          <span className="flex items-center gap-1 text-[10px] font-body text-muted-foreground bg-muted/40 rounded-full px-2 py-0.5">
+                            <Droplets className="w-2.5 h-2.5 text-primary" />
+                            {plant.watering_frequency}
+                          </span>
                         )}
                       </div>
                     )}
 
                     <div className="flex-1" />
 
-                    {/* Added date */}
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-body">
-                      <CalendarDays className="w-3 h-3" />
-                      Added {new Date(item.added_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    {/* Bottom row: added date + remove icon */}
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-body">
+                        <CalendarDays className="w-3 h-3" />
+                        {new Date(item.added_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      </div>
+                      <button
+                        onClick={() => removeFromGarden(item.id)}
+                        disabled={removingId === item.id}
+                        className="w-9 h-9 rounded-xl flex items-center justify-center border border-border hover:bg-destructive/10 hover:border-destructive/40 hover:text-destructive text-muted-foreground transition-all duration-200"
+                        title="Remove from garden"
+                      >
+                        {removingId === item.id ? (
+                          <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </button>
                     </div>
-
-                    {/* Remove button */}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-full font-body text-xs tracking-widest uppercase border-destructive/40 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                      onClick={() => removeFromGarden(item.id)}
-                      disabled={removingId === item.id}
-                    >
-                      <Trash2 className="w-3 h-3 mr-1" />
-                      {removingId === item.id ? "Removing…" : "Remove from Garden"}
-                    </Button>
                   </div>
                 </div>
               );

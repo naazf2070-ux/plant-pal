@@ -15,6 +15,7 @@ const publicLinks = [
 const userLinks = [
   { label: "Search Plants", href: "/plants", icon: FlowerIcon },
   { label: "My Garden", href: "/garden", icon: TreePine },
+  { label: "Feedback", href: "/feedback", icon: MessageSquare },
 ];
 
 const Navbar = () => {

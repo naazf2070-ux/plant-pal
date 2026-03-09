@@ -100,14 +100,16 @@ const Admin = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [profilesRes, rolesRes, plantsRes] = await Promise.all([
+    const [profilesRes, rolesRes, plantsRes, feedbackRes] = await Promise.all([
       supabase.from("profiles").select("user_id, display_name, avatar_url, created_at"),
       supabase.from("user_roles").select("user_id, role"),
       supabase.from("plants").select("*").order("name"),
+      supabase.from("feedback").select("*").order("created_at", { ascending: false }),
     ]);
     if (profilesRes.data) setProfiles(profilesRes.data);
     if (rolesRes.data) setRoles(rolesRes.data as UserRole[]);
     if (plantsRes.data) setPlants(plantsRes.data as Plant[]);
+    if (feedbackRes.data) setFeedbacks(feedbackRes.data as FeedbackItem[]);
     setLoading(false);
   };
 

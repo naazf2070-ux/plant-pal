@@ -77,8 +77,9 @@ const Admin = () => {
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [plants, setPlants] = useState<Plant[]>([]);
+  const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"users" | "plants">("users");
+  const [tab, setTab] = useState<"users" | "plants" | "feedback">("users");
   const [showAddPlant, setShowAddPlant] = useState(false);
   const [plantForm, setPlantForm] = useState(defaultPlantForm);
   const [addingPlant, setAddingPlant] = useState(false);
@@ -86,6 +87,8 @@ const Admin = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
 
   useEffect(() => {
     if (!isLoading && (!user || !isAdmin)) navigate("/");

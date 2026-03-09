@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import ComboboxSelect from "@/components/ComboboxSelect";
 import { toast } from "@/hooks/use-toast";
-import { Leaf, Shield, Users, ArrowLeft, Trash2, Plus, X, Upload, Image as ImageIcon, Link } from "lucide-react";
+import { Leaf, Shield, Users, ArrowLeft, Trash2, Plus, X, Upload, Image as ImageIcon, Link, MessageSquare, Send } from "lucide-react";
 
 interface UserProfile {
   user_id: string;
@@ -40,6 +40,18 @@ interface Plant {
   created_at: string;
 }
 
+interface FeedbackItem {
+  id: string;
+  user_id: string;
+  type: string;
+  subject: string;
+  message: string;
+  admin_reply: string | null;
+  replied_at: string | null;
+  status: string;
+  created_at: string;
+}
+
 const defaultPlantForm = {
   name: "",
   latin: "",
@@ -65,8 +77,9 @@ const Admin = () => {
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [plants, setPlants] = useState<Plant[]>([]);
+  const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"users" | "plants">("users");
+  const [tab, setTab] = useState<"users" | "plants" | "feedback">("users");
   const [showAddPlant, setShowAddPlant] = useState(false);
   const [plantForm, setPlantForm] = useState(defaultPlantForm);
   const [addingPlant, setAddingPlant] = useState(false);
@@ -74,6 +87,8 @@ const Admin = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
 
   useEffect(() => {
     if (!isLoading && (!user || !isAdmin)) navigate("/");
@@ -85,14 +100,16 @@ const Admin = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [profilesRes, rolesRes, plantsRes] = await Promise.all([
+    const [profilesRes, rolesRes, plantsRes, feedbackRes] = await Promise.all([
       supabase.from("profiles").select("user_id, display_name, avatar_url, created_at"),
       supabase.from("user_roles").select("user_id, role"),
       supabase.from("plants").select("*").order("name"),
+      supabase.from("feedback").select("*").order("created_at", { ascending: false }),
     ]);
     if (profilesRes.data) setProfiles(profilesRes.data);
     if (rolesRes.data) setRoles(rolesRes.data as UserRole[]);
     if (plantsRes.data) setPlants(plantsRes.data as Plant[]);
+    if (feedbackRes.data) setFeedbacks(feedbackRes.data as FeedbackItem[]);
     setLoading(false);
   };
 
@@ -199,6 +216,32 @@ const Admin = () => {
     }
   };
 
+  const replyToFeedback = async (feedbackId: string) => {
+    if (!replyText.trim()) return;
+    const { error } = await supabase
+      .from("feedback")
+      .update({
+        admin_reply: replyText.trim(),
+        replied_at: new Date().toISOString(),
+        replied_by: user?.id,
+        status: "replied",
+      })
+      .eq("id", feedbackId);
+    if (error) {
+      toast({ title: "Failed to reply", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Reply sent ✉️" });
+      setReplyingTo(null);
+      setReplyText("");
+      fetchData();
+    }
+  };
+
+  const getUserName = (userId: string) => {
+    const p = profiles.find((pr) => pr.user_id === userId);
+    return p?.display_name || "Unknown User";
+  };
+
   const resetForm = () => {
     setPlantForm(defaultPlantForm);
     setImageFile(null);
@@ -293,6 +336,19 @@ const Admin = () => {
             className="font-body text-xs tracking-widest uppercase"
           >
             <Leaf className="w-3 h-3 mr-2" /> Plants
+          </Button>
+          <Button
+            variant={tab === "feedback" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setTab("feedback")}
+            className="font-body text-xs tracking-widest uppercase"
+          >
+            <MessageSquare className="w-3 h-3 mr-2" /> Feedback
+            {feedbacks.filter(f => f.status === "open").length > 0 && (
+              <span className="ml-1 bg-destructive text-destructive-foreground text-[10px] rounded-full w-5 h-5 flex items-center justify-center">
+                {feedbacks.filter(f => f.status === "open").length}
+              </span>
+            )}
           </Button>
         </div>
 
@@ -605,6 +661,86 @@ const Admin = () => {
                 )}
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {/* Feedback Tab */}
+        {tab === "feedback" && (
+          <div className="space-y-4">
+            <p className="text-muted-foreground font-body text-sm">
+              {feedbacks.length} submissions · {feedbacks.filter(f => f.status === "open").length} awaiting reply
+            </p>
+
+            {feedbacks.length === 0 ? (
+              <Card className="border-border/50 bg-card/80">
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground font-body">No feedback yet.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {feedbacks.map((fb) => (
+                  <Card key={fb.id} className={`border-border/50 bg-card/80 ${fb.status === "open" ? "border-l-2 border-l-primary" : ""}`}>
+                    <CardContent className="pt-5 space-y-3">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs font-body capitalize">{fb.type}</Badge>
+                          <Badge className={`text-xs font-body ${fb.status === "open" ? "bg-primary/20 text-primary" : fb.status === "replied" ? "bg-accent/20 text-accent" : "bg-muted text-muted-foreground"}`}>
+                            {fb.status}
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-muted-foreground font-body">
+                          {getUserName(fb.user_id)} · {new Date(fb.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      <h3 className="font-display font-semibold">{fb.subject}</h3>
+                      <p className="font-body text-sm text-muted-foreground whitespace-pre-wrap">{fb.message}</p>
+
+                      {fb.admin_reply && (
+                        <div className="p-3 rounded-md bg-primary/5 border border-primary/20">
+                          <p className="text-xs text-primary font-body font-medium mb-1">Your Reply</p>
+                          <p className="font-body text-sm whitespace-pre-wrap">{fb.admin_reply}</p>
+                        </div>
+                      )}
+
+                      {replyingTo === fb.id ? (
+                        <div className="space-y-2 pt-2 border-t border-border/50">
+                          <Textarea
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="Type your reply..."
+                            rows={3}
+                            maxLength={2000}
+                            className="bg-background/60"
+                          />
+                          <div className="flex gap-2 justify-end">
+                            <Button variant="outline" size="sm" onClick={() => { setReplyingTo(null); setReplyText(""); }} className="font-body text-xs">
+                              Cancel
+                            </Button>
+                            <Button size="sm" onClick={() => replyToFeedback(fb.id)} disabled={!replyText.trim()} className="font-body text-xs">
+                              <Send className="w-3 h-3 mr-1" /> Send Reply
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex justify-end pt-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => { setReplyingTo(fb.id); setReplyText(fb.admin_reply || ""); }}
+                            className="font-body text-xs"
+                          >
+                            <MessageSquare className="w-3 h-3 mr-1" />
+                            {fb.admin_reply ? "Edit Reply" : "Reply"}
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </main>

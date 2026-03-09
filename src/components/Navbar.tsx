@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Leaf, Shield, Menu, X, FlowerIcon, TreePine, LogOut, LogIn } from "lucide-react";
+import { Leaf, Shield, Menu, X, FlowerIcon, TreePine, LogOut, LogIn, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ const publicLinks = [
 const userLinks = [
   { label: "Search Plants", href: "/plants", icon: FlowerIcon },
   { label: "My Garden", href: "/garden", icon: TreePine },
+  { label: "Feedback", href: "/feedback", icon: MessageSquare },
 ];
 
 const Navbar = () => {

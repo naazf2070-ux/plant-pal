@@ -216,6 +216,32 @@ const Admin = () => {
     }
   };
 
+  const replyToFeedback = async (feedbackId: string) => {
+    if (!replyText.trim()) return;
+    const { error } = await supabase
+      .from("feedback")
+      .update({
+        admin_reply: replyText.trim(),
+        replied_at: new Date().toISOString(),
+        replied_by: user?.id,
+        status: "replied",
+      })
+      .eq("id", feedbackId);
+    if (error) {
+      toast({ title: "Failed to reply", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Reply sent ✉️" });
+      setReplyingTo(null);
+      setReplyText("");
+      fetchData();
+    }
+  };
+
+  const getUserName = (userId: string) => {
+    const p = profiles.find((pr) => pr.user_id === userId);
+    return p?.display_name || "Unknown User";
+  };
+
   const resetForm = () => {
     setPlantForm(defaultPlantForm);
     setImageFile(null);

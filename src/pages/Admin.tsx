@@ -663,6 +663,86 @@ const Admin = () => {
             </Card>
           </div>
         )}
+
+        {/* Feedback Tab */}
+        {tab === "feedback" && (
+          <div className="space-y-4">
+            <p className="text-muted-foreground font-body text-sm">
+              {feedbacks.length} submissions · {feedbacks.filter(f => f.status === "open").length} awaiting reply
+            </p>
+
+            {feedbacks.length === 0 ? (
+              <Card className="border-border/50 bg-card/80">
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground font-body">No feedback yet.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {feedbacks.map((fb) => (
+                  <Card key={fb.id} className={`border-border/50 bg-card/80 ${fb.status === "open" ? "border-l-2 border-l-primary" : ""}`}>
+                    <CardContent className="pt-5 space-y-3">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs font-body capitalize">{fb.type}</Badge>
+                          <Badge className={`text-xs font-body ${fb.status === "open" ? "bg-primary/20 text-primary" : fb.status === "replied" ? "bg-accent/20 text-accent" : "bg-muted text-muted-foreground"}`}>
+                            {fb.status}
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-muted-foreground font-body">
+                          {getUserName(fb.user_id)} · {new Date(fb.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      <h3 className="font-display font-semibold">{fb.subject}</h3>
+                      <p className="font-body text-sm text-muted-foreground whitespace-pre-wrap">{fb.message}</p>
+
+                      {fb.admin_reply && (
+                        <div className="p-3 rounded-md bg-primary/5 border border-primary/20">
+                          <p className="text-xs text-primary font-body font-medium mb-1">Your Reply</p>
+                          <p className="font-body text-sm whitespace-pre-wrap">{fb.admin_reply}</p>
+                        </div>
+                      )}
+
+                      {replyingTo === fb.id ? (
+                        <div className="space-y-2 pt-2 border-t border-border/50">
+                          <Textarea
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="Type your reply..."
+                            rows={3}
+                            maxLength={2000}
+                            className="bg-background/60"
+                          />
+                          <div className="flex gap-2 justify-end">
+                            <Button variant="outline" size="sm" onClick={() => { setReplyingTo(null); setReplyText(""); }} className="font-body text-xs">
+                              Cancel
+                            </Button>
+                            <Button size="sm" onClick={() => replyToFeedback(fb.id)} disabled={!replyText.trim()} className="font-body text-xs">
+                              <Send className="w-3 h-3 mr-1" /> Send Reply
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex justify-end pt-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => { setReplyingTo(fb.id); setReplyText(fb.admin_reply || ""); }}
+                            className="font-body text-xs"
+                          >
+                            <MessageSquare className="w-3 h-3 mr-1" />
+                            {fb.admin_reply ? "Edit Reply" : "Reply"}
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

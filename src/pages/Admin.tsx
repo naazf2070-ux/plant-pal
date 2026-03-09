@@ -40,6 +40,18 @@ interface Plant {
   created_at: string;
 }
 
+interface FeedbackItem {
+  id: string;
+  user_id: string;
+  type: string;
+  subject: string;
+  message: string;
+  admin_reply: string | null;
+  replied_at: string | null;
+  status: string;
+  created_at: string;
+}
+
 const defaultPlantForm = {
   name: "",
   latin: "",

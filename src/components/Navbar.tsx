@@ -98,39 +98,38 @@ const Navbar = () => {
         </div>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2">
           {isAdmin && (
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={() => navigate("/admin")}
               className={cn(
-                "font-body text-xs tracking-widest uppercase",
+                "h-8 w-8",
                 isActive("/admin") ? "text-primary" : "text-primary/70 hover:text-primary"
               )}
+              title="Admin"
             >
-              <Shield className="w-3.5 h-3.5 mr-1.5" />
-              Admin
+              <Shield className="w-4 h-4" />
             </Button>
           )}
 
           {user ? (
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
+              size="icon"
               onClick={signOut}
-              className="font-body text-xs tracking-widest uppercase border-border/60 hover:border-border hover:bg-muted/50"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              title="Sign Out"
             >
-              <LogOut className="w-3.5 h-3.5 mr-1.5" />
-              Sign Out
+              <LogOut className="w-4 h-4" />
             </Button>
           ) : (
             <Button
               size="sm"
               onClick={() => navigate("/auth")}
-              className="font-body text-xs tracking-widest uppercase bg-primary text-primary-foreground hover:bg-emerald-glow transition-colors duration-300 rounded-sm"
+              className="font-body text-[11px] tracking-[0.15em] uppercase bg-primary text-primary-foreground hover:bg-emerald-glow transition-colors duration-300 rounded-sm h-8 px-4"
             >
-              <LogIn className="w-3.5 h-3.5 mr-1.5" />
               Sign In
             </Button>
           )}

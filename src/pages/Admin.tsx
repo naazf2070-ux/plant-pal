@@ -9,8 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import ComboboxSelect from "@/components/ComboboxSelect";
-import { toast } from "@/hooks/use-toast";
+import ComboboxSelect from "@/components/ComboboxSst";
 import { Leaf, Shield, Users, ArrowLeft, Trash2, Plus, X, Upload, Image as ImageIcon, Link } from "lucide-react";
 
 interface UserProfile {
@@ -375,7 +374,7 @@ const Admin = () => {
             {showAddPlant && (
               <Card className="border-primary/30 bg-card/80">
                 <CardHeader>
-                  <CardTitle className="font-display text-lg">Add New Plant</CardTitle>
+       background/60 backdrop-blur-xl    <CardTitle className="font-display text-lg">Add New Plant</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={addPlant} className="space-y-6">

@@ -60,8 +60,8 @@ const Navbar = () => {
           </span>
         </div>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-7">
+        {/* Desktop Nav — centered */}
+        <div className="hidden md:flex items-center gap-8">
           {publicLinks.map((item) => (
             <a
               key={item.label}
@@ -70,7 +70,7 @@ const Navbar = () => {
                 e.preventDefault();
                 handleNav(item.href);
               }}
-              className="text-xs tracking-[0.18em] uppercase text-muted-foreground hover:text-foreground transition-colors duration-200 font-body"
+              className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground hover:text-foreground transition-colors duration-200 font-body"
             >
               {item.label}
             </a>
@@ -78,13 +78,13 @@ const Navbar = () => {
 
           {user && (
             <>
-              <span className="w-px h-4 bg-border" />
+              <span className="w-px h-3.5 bg-border/60" />
               {userLinks.map(({ label, href }) => (
                 <button
                   key={label}
                   onClick={() => handleNav(href)}
                   className={cn(
-                    "text-xs tracking-[0.18em] uppercase transition-colors duration-200 font-body",
+                    "text-[11px] tracking-[0.2em] uppercase transition-colors duration-200 font-body",
                     isActive(href)
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"

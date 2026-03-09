@@ -337,6 +337,19 @@ const Admin = () => {
           >
             <Leaf className="w-3 h-3 mr-2" /> Plants
           </Button>
+          <Button
+            variant={tab === "feedback" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setTab("feedback")}
+            className="font-body text-xs tracking-widest uppercase"
+          >
+            <MessageSquare className="w-3 h-3 mr-2" /> Feedback
+            {feedbacks.filter(f => f.status === "open").length > 0 && (
+              <span className="ml-1 bg-destructive text-destructive-foreground text-[10px] rounded-full w-5 h-5 flex items-center justify-center">
+                {feedbacks.filter(f => f.status === "open").length}
+              </span>
+            )}
+          </Button>
         </div>
 
         {/* Users Tab */}

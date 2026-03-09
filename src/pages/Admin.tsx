@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ComboboxSelect from "@/components/ComboboxSelect";
 import { toast } from "@/hooks/use-toast";
 import { Leaf, Shield, Users, ArrowLeft, Trash2, Plus, X, Upload, Image as ImageIcon, Link } from "lucide-react";
 
@@ -375,7 +375,7 @@ const Admin = () => {
             {showAddPlant && (
               <Card className="border-primary/30 bg-card/80">
                 <CardHeader>
-                  <CardTitle className="font-display text-lg">Add New Plant</CardTitle>
+       background/60 backdrop-blur-xl    <CardTitle className="font-display text-lg">Add New Plant</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={addPlant} className="space-y-6">
@@ -487,66 +487,31 @@ const Admin = () => {
                       {/* Category */}
                       <div className="space-y-2">
                         <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Category</Label>
-                        <Select value={plantForm.category} onValueChange={(v) => setPlantForm(p => ({ ...p, category: v }))}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
+                        <ComboboxSelect options={CATEGORIES} value={plantForm.category} onChange={(v) => setPlantForm(p => ({ ...p, category: v }))} placeholder="Select or type to add new" />
                       </div>
 
                       {/* Type */}
                       <div className="space-y-2">
                         <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Type</Label>
-                        <Select value={plantForm.plant_type} onValueChange={(v) => setPlantForm(p => ({ ...p, plant_type: v }))}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Indoor / Outdoor" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {PLANT_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
+                        <ComboboxSelect options={PLANT_TYPES} value={plantForm.plant_type} onChange={(v) => setPlantForm(p => ({ ...p, plant_type: v }))} placeholder="Select or type to add new" />
                       </div>
 
                       {/* Watering Schedule */}
                       <div className="space-y-2">
                         <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Watering Schedule</Label>
-                        <Select value={plantForm.watering_frequency} onValueChange={(v) => setPlantForm(p => ({ ...p, watering_frequency: v }))}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select frequency" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {WATERING_OPTIONS.map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
+                        <ComboboxSelect options={WATERING_OPTIONS} value={plantForm.watering_frequency} onChange={(v) => setPlantForm(p => ({ ...p, watering_frequency: v }))} placeholder="Select or type to add new" />
                       </div>
 
                       {/* Sunlight Requirement */}
                       <div className="space-y-2">
                         <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Sunlight Requirement</Label>
-                        <Select value={plantForm.light_requirements} onValueChange={(v) => setPlantForm(p => ({ ...p, light_requirements: v }))}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select sunlight" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {SUNLIGHT_OPTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
+                        <ComboboxSelect options={SUNLIGHT_OPTIONS} value={plantForm.light_requirements} onChange={(v) => setPlantForm(p => ({ ...p, light_requirements: v }))} placeholder="Select or type to add new" />
                       </div>
 
                       {/* Soil Type */}
                       <div className="space-y-2 md:col-span-2">
                         <Label className="font-body text-xs tracking-widest uppercase text-muted-foreground">Soil Type</Label>
-                        <Select value={plantForm.soil_type} onValueChange={(v) => setPlantForm(p => ({ ...p, soil_type: v }))}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select soil type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {SOIL_TYPES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
+                        <ComboboxSelect options={SOIL_TYPES} value={plantForm.soil_type} onChange={(v) => setPlantForm(p => ({ ...p, soil_type: v }))} placeholder="Select or type to add new" />
                       </div>
                     </div>
 

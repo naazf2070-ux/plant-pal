@@ -6,11 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-const publicLinks = [
-  { label: "Collection", href: "#collection" },
-  { label: "Care Guides", href: "#care-guides" },
-  { label: "About", href: "#about" },
-];
+const publicLinks: { label: string; href: string }[] = [];
 
 const userLinks = [
   { label: "Search Plants", href: "/plants", icon: FlowerIcon },

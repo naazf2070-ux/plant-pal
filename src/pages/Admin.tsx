@@ -98,6 +98,29 @@ const Admin = () => {
     if (isAdmin) fetchData();
   }, [isAdmin]);
 
+  // Realtime subscription for feedback
+  useEffect(() => {
+    if (!isAdmin) return;
+    const channel = supabase
+      .channel("admin-feedback")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "feedback" },
+        () => {
+          // Re-fetch feedback on any change
+          supabase
+            .from("feedback")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .then(({ data }) => {
+              if (data) setFeedbacks(data as FeedbackItem[]);
+            });
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [isAdmin]);
+
   const fetchData = async () => {
     setLoading(true);
     const [profilesRes, rolesRes, plantsRes, feedbackRes] = await Promise.all([

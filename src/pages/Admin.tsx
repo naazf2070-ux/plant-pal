@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -306,13 +307,23 @@ const Admin = () => {
       </nav>
 
       <main className="container px-6 md:px-12 lg:px-20 py-12">
-        <div className="mb-8">
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h1 className="font-display text-3xl font-semibold mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground font-body">Manage users, roles, and plants</p>
-        </div>
+        </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
           <Card className="border-border/50 bg-card/80">
             <CardHeader className="flex flex-row items-center gap-3 pb-2">
               <Users className="w-5 h-5 text-primary" />
@@ -340,7 +351,7 @@ const Admin = () => {
               <p className="text-3xl font-display font-semibold">{plants.length}</p>
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6">

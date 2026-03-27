@@ -307,10 +307,15 @@ const Admin = () => {
       </nav>
 
       <main className="container px-6 md:px-12 lg:px-20 py-12">
-        <div className="mb-8">
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h1 className="font-display text-3xl font-semibold mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground font-body">Manage users, roles, and plants</p>
-        </div>
+        </motion.div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

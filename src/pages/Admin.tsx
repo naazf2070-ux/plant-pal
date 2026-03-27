@@ -351,7 +351,7 @@ const Admin = () => {
               <p className="text-3xl font-display font-semibold">{plants.length}</p>
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6">

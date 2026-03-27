@@ -318,7 +318,12 @@ const Admin = () => {
         </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
           <Card className="border-border/50 bg-card/80">
             <CardHeader className="flex flex-row items-center gap-3 pb-2">
               <Users className="w-5 h-5 text-primary" />

@@ -245,6 +245,11 @@ const Garden = () => {
           </AnimatePresence>
         )}
       </main>
+      <GardenItemDrawer
+        item={selectedItem}
+        open={!!selectedItem}
+        onOpenChange={(open) => !open && setSelectedItem(null)}
+      />
     </div>
   );
 };

@@ -277,6 +277,11 @@ const Plants = () => {
           </AnimatePresence>
         )}
       </main>
+      <PlantDetailDrawer
+        plant={selectedPlant}
+        open={!!selectedPlant}
+        onOpenChange={(open) => !open && setSelectedPlant(null)}
+      />
     </div>
   );
 };

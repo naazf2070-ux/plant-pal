@@ -223,7 +223,7 @@ const Garden = () => {
                           {new Date(item.added_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                         </div>
                         <motion.button
-                          onClick={() => removeFromGarden(item.id)}
+                          onClick={(e) => { e.stopPropagation(); removeFromGarden(item.id); }}
                           disabled={removingId === item.id}
                           title="Remove from garden"
                           whileHover={{ scale: 1.15 }}

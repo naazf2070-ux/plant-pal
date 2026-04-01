@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Search, Leaf, Plus, Check, Droplets, Sun, Sprout } from "lucide-react";
+import PlantDetailDrawer from "@/components/PlantDetailDrawer";
 
 interface Plant {
   id: string;
@@ -51,6 +52,7 @@ const Plants = () => {
   const [gardenIds, setGardenIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
 
   useEffect(() => { fetchPlants(); }, []);
   useEffect(() => { if (user) fetchGardenIds(); }, [user]);
@@ -179,7 +181,8 @@ const Plants = () => {
                     animate="visible"
                     exit="exit"
                     layout
-                    className="group relative rounded-[20px] overflow-hidden flex flex-col cursor-default"
+                    onClick={() => setSelectedPlant(plant)}
+                    className="group relative rounded-[20px] overflow-hidden flex flex-col cursor-pointer"
                     style={{
                       background: "hsl(var(--card))",
                       boxShadow: "0 8px 32px hsl(0 0% 0% / 0.5)",
@@ -274,6 +277,11 @@ const Plants = () => {
           </AnimatePresence>
         )}
       </main>
+      <PlantDetailDrawer
+        plant={selectedPlant}
+        open={!!selectedPlant}
+        onOpenChange={(open) => !open && setSelectedPlant(null)}
+      />
     </div>
   );
 };

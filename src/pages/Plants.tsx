@@ -52,6 +52,7 @@ const Plants = () => {
   const [gardenIds, setGardenIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
 
   useEffect(() => { fetchPlants(); }, []);
   useEffect(() => { if (user) fetchGardenIds(); }, [user]);

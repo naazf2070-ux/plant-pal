@@ -85,6 +85,47 @@ export type Database = {
           },
         ]
       }
+      growth_logs: {
+        Row: {
+          garden_item_id: string
+          health: string | null
+          height_cm: number | null
+          id: string
+          leaf_count: number | null
+          logged_at: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          garden_item_id: string
+          health?: string | null
+          height_cm?: number | null
+          id?: string
+          leaf_count?: number | null
+          logged_at?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          garden_item_id?: string
+          health?: string | null
+          height_cm?: number | null
+          id?: string
+          leaf_count?: number | null
+          logged_at?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_logs_garden_item_id_fkey"
+            columns: ["garden_item_id"]
+            isOneToOne: false
+            referencedRelation: "garden_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plants: {
         Row: {
           care_instructions: string | null
@@ -183,6 +224,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      watering_logs: {
+        Row: {
+          garden_item_id: string
+          id: string
+          notes: string | null
+          user_id: string
+          watered_at: string
+        }
+        Insert: {
+          garden_item_id: string
+          id?: string
+          notes?: string | null
+          user_id: string
+          watered_at?: string
+        }
+        Update: {
+          garden_item_id?: string
+          id?: string
+          notes?: string | null
+          user_id?: string
+          watered_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watering_logs_garden_item_id_fkey"
+            columns: ["garden_item_id"]
+            isOneToOne: false
+            referencedRelation: "garden_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

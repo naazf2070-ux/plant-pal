@@ -54,6 +54,7 @@ const Garden = () => {
   const [items, setItems] = useState<GardenItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<GardenItem | null>(null);
 
   useEffect(() => {
     if (!isLoading && !user) navigate("/auth");

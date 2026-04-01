@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Leaf, Trash2, Search, CalendarDays, Droplets, Sun, Sprout } from "lucide-react";
+import GardenItemDrawer from "@/components/GardenItemDrawer";
 
 interface GardenItem {
   id: string;

@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Search, Leaf, Plus, Check, Droplets, Sun, Sprout } from "lucide-react";
+import PlantDetailDrawer from "@/components/PlantDetailDrawer";
 
 interface Plant {
   id: string;

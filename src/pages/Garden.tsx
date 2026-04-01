@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Leaf, Trash2, Search, CalendarDays, Droplets, Sun, Sprout } from "lucide-react";
+import GardenItemDrawer from "@/components/GardenItemDrawer";
 
 interface GardenItem {
   id: string;
@@ -53,6 +54,7 @@ const Garden = () => {
   const [items, setItems] = useState<GardenItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<GardenItem | null>(null);
 
   useEffect(() => {
     if (!isLoading && !user) navigate("/auth");
@@ -156,7 +158,8 @@ const Garden = () => {
                     animate="visible"
                     exit="exit"
                     layout
-                    className="group relative rounded-[20px] overflow-hidden flex flex-col"
+                    className="group relative rounded-[20px] overflow-hidden flex flex-col cursor-pointer"
+                    onClick={() => setSelectedItem(item)}
                     style={{
                       background: "hsl(var(--card))",
                       boxShadow: "0 8px 32px hsl(0 0% 0% / 0.5)",
@@ -220,7 +223,7 @@ const Garden = () => {
                           {new Date(item.added_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                         </div>
                         <motion.button
-                          onClick={() => removeFromGarden(item.id)}
+                          onClick={(e) => { e.stopPropagation(); removeFromGarden(item.id); }}
                           disabled={removingId === item.id}
                           title="Remove from garden"
                           whileHover={{ scale: 1.15 }}
@@ -242,6 +245,11 @@ const Garden = () => {
           </AnimatePresence>
         )}
       </main>
+      <GardenItemDrawer
+        item={selectedItem}
+        open={!!selectedItem}
+        onOpenChange={(open) => !open && setSelectedItem(null)}
+      />
     </div>
   );
 };

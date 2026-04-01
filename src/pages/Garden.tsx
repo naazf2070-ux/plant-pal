@@ -158,7 +158,8 @@ const Garden = () => {
                     animate="visible"
                     exit="exit"
                     layout
-                    className="group relative rounded-[20px] overflow-hidden flex flex-col"
+                    className="group relative rounded-[20px] overflow-hidden flex flex-col cursor-pointer"
+                    onClick={() => setSelectedItem(item)}
                     style={{
                       background: "hsl(var(--card))",
                       boxShadow: "0 8px 32px hsl(0 0% 0% / 0.5)",

@@ -135,7 +135,8 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Hamburger */}
-        <div className="flex md:hidden">
+        <div className="flex md:hidden items-center gap-1">
+          {user && <NotificationsBell />}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="sm" className="p-2">

@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import ComboboxSelect from "@/components/ComboboxSelect";
 import { toast } from "@/hooks/use-toast";
-import { Leaf, Shield, Users, ArrowLeft, Trash2, Plus, X, Upload, Image as ImageIcon, Link, MessageSquare, Send } from "lucide-react";
+import { Leaf, Shield, Users, ArrowLeft, Trash2, Plus, X, Upload, Image as ImageIcon, Link, MessageSquare, Send, Bell } from "lucide-react";
+import AdminRemindersDialog from "@/components/AdminRemindersDialog";
 
 interface UserProfile {
   user_id: string;
@@ -90,6 +91,7 @@ const Admin = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
+  const [reminderTarget, setReminderTarget] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     if (!isLoading && (!user || !isAdmin)) navigate("/");
@@ -421,6 +423,15 @@ const Admin = () => {
                           {new Date(profile.created_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell className="text-right space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setReminderTarget({ id: profile.user_id, name: profile.display_name || "Unnamed" })}
+                            className="font-body text-xs"
+                            title="Manage reminders"
+                          >
+                            <Bell className="w-3 h-3" />
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"

@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import NotificationsBell from "@/components/NotificationsBell";
 
 const publicLinks: { label: string; href: string }[] = [];
 
@@ -96,6 +97,7 @@ const Navbar = () => {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-2">
+          {user && <NotificationsBell />}
           {isAdmin && (
             <Button
               variant="ghost"

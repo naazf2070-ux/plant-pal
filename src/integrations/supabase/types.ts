@@ -204,6 +204,56 @@ export type Database = {
         }
         Relationships: []
       }
+      reminders: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          due_at: string
+          garden_item_id: string
+          id: string
+          message: string | null
+          read_at: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          due_at: string
+          garden_item_id: string
+          id?: string
+          message?: string | null
+          read_at?: string | null
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          due_at?: string
+          garden_item_id?: string
+          id?: string
+          message?: string | null
+          read_at?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminders_garden_item_id_fkey"
+            columns: ["garden_item_id"]
+            isOneToOne: false
+            referencedRelation: "garden_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string

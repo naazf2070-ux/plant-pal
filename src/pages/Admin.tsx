@@ -789,6 +789,13 @@ const Admin = () => {
           </div>
         )}
       </main>
+
+      <AdminRemindersDialog
+        open={!!reminderTarget}
+        onOpenChange={(o) => !o && setReminderTarget(null)}
+        userId={reminderTarget?.id ?? null}
+        userName={reminderTarget?.name ?? null}
+      />
     </div>
   );
 };

@@ -217,19 +217,15 @@ const Plants = () => {
                     }}
                     whileHover={{ y: -4, transition: { duration: 0.25 } }}
                   >
-                    {/* Inner image box */}
-                    <div className="relative mx-3 mt-3 rounded-[14px] flex items-center justify-center overflow-hidden bg-muted" style={{ minHeight: "190px" }}>
+                    {/* Inner image box - consistent square aspect ratio */}
+                    <div className="relative mx-3 mt-3 rounded-[14px] flex items-center justify-center overflow-hidden bg-muted aspect-square">
                       {plant.image_url ? (
-                        <img
-                          src={plant.image_url}
-                          alt={plant.name}
-                          className="w-full h-full object-contain max-h-[190px] p-3 group-hover:scale-110 transition-transform duration-700 ease-out drop-shadow-2xl"
-                        />
+                        <PlantImage src={plant.image_url} alt={plant.name} />
                       ) : (
-                        <Leaf className="w-16 h-16 text-muted-foreground/20 my-10" />
+                        <Leaf className="w-16 h-16 text-muted-foreground/20" />
                       )}
                       {plant.category && (
-                        <span className="absolute top-2.5 right-2.5 text-[9px] tracking-wider uppercase font-body bg-card/80 backdrop-blur-sm text-muted-foreground border border-border/60 rounded-full px-2 py-0.5">
+                        <span className="absolute top-2.5 right-2.5 text-[9px] tracking-wider uppercase font-body bg-card/80 backdrop-blur-sm text-muted-foreground border border-border/60 rounded-full px-2 py-0.5 z-10">
                           {plant.category}
                         </span>
                       )}

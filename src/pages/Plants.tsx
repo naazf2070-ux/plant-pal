@@ -33,9 +33,37 @@ const cardVariants = {
   exit: { opacity: 0, y: -12, scale: 0.96, transition: { duration: 0.3 } },
 };
 
+const ImageSkeleton = () => (
+  <div className="absolute inset-0 bg-gradient-to-br from-muted via-muted/60 to-muted animate-pulse" />
+);
+
+const PlantImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
+  return (
+    <>
+      {!loaded && !errored && <ImageSkeleton />}
+      {errored ? (
+        <Leaf className="w-14 h-14 text-muted-foreground/20" />
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          onError={() => setErrored(true)}
+          className={`w-full h-full object-contain p-4 group-hover:scale-110 transition-all duration-700 ease-out drop-shadow-2xl ${
+            loaded ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      )}
+    </>
+  );
+};
+
 const SkeletonCard = () => (
   <div className="rounded-[20px] overflow-hidden bg-card animate-pulse">
-    <div className="mx-3 mt-3 rounded-[14px] bg-muted h-[190px]" />
+    <div className="mx-3 mt-3 rounded-[14px] bg-muted aspect-square" />
     <div className="px-4 pt-3 pb-4 space-y-2">
       <div className="h-4 bg-muted rounded w-3/4" />
       <div className="h-3 bg-muted rounded w-full" />

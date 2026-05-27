@@ -33,9 +33,37 @@ const cardVariants = {
   exit: { opacity: 0, y: -12, scale: 0.96, transition: { duration: 0.3 } },
 };
 
+const ImageSkeleton = () => (
+  <div className="absolute inset-0 bg-gradient-to-br from-muted via-muted/60 to-muted animate-pulse" />
+);
+
+const PlantImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
+  return (
+    <>
+      {!loaded && !errored && <ImageSkeleton />}
+      {errored ? (
+        <Leaf className="w-14 h-14 text-muted-foreground/20" />
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          onError={() => setErrored(true)}
+          className={`w-full h-full object-contain p-4 group-hover:scale-110 transition-all duration-700 ease-out drop-shadow-2xl ${
+            loaded ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      )}
+    </>
+  );
+};
+
 const SkeletonCard = () => (
   <div className="rounded-[20px] overflow-hidden bg-card animate-pulse">
-    <div className="mx-3 mt-3 rounded-[14px] bg-muted h-[190px]" />
+    <div className="mx-3 mt-3 rounded-[14px] bg-muted aspect-square" />
     <div className="px-4 pt-3 pb-4 space-y-2">
       <div className="h-4 bg-muted rounded w-3/4" />
       <div className="h-3 bg-muted rounded w-full" />
@@ -189,19 +217,15 @@ const Plants = () => {
                     }}
                     whileHover={{ y: -4, transition: { duration: 0.25 } }}
                   >
-                    {/* Inner image box */}
-                    <div className="relative mx-3 mt-3 rounded-[14px] flex items-center justify-center overflow-hidden bg-muted" style={{ minHeight: "190px" }}>
+                    {/* Inner image box - consistent square aspect ratio */}
+                    <div className="relative mx-3 mt-3 rounded-[14px] flex items-center justify-center overflow-hidden bg-muted aspect-square">
                       {plant.image_url ? (
-                        <img
-                          src={plant.image_url}
-                          alt={plant.name}
-                          className="w-full h-full object-contain max-h-[190px] p-3 group-hover:scale-110 transition-transform duration-700 ease-out drop-shadow-2xl"
-                        />
+                        <PlantImage src={plant.image_url} alt={plant.name} />
                       ) : (
-                        <Leaf className="w-16 h-16 text-muted-foreground/20 my-10" />
+                        <Leaf className="w-16 h-16 text-muted-foreground/20" />
                       )}
                       {plant.category && (
-                        <span className="absolute top-2.5 right-2.5 text-[9px] tracking-wider uppercase font-body bg-card/80 backdrop-blur-sm text-muted-foreground border border-border/60 rounded-full px-2 py-0.5">
+                        <span className="absolute top-2.5 right-2.5 text-[9px] tracking-wider uppercase font-body bg-card/80 backdrop-blur-sm text-muted-foreground border border-border/60 rounded-full px-2 py-0.5 z-10">
                           {plant.category}
                         </span>
                       )}

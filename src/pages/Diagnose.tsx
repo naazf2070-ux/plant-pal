@@ -241,11 +241,17 @@ const Diagnose = () => {
                   className="space-y-5"
                 >
                   {!diagnosis.is_plant ? (
-                    <div className="flex items-start gap-2 text-yellow-400">
-                      <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
-                      <p className="font-body text-sm">
-                        We couldn't detect a plant in the image. Try uploading a clearer close-up.
+                    <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center">
+                        <AlertTriangle className="w-5 h-5 text-yellow-400" />
+                      </div>
+                      <h2 className="font-display text-xl text-foreground">This is not a plant image</h2>
+                      <p className="font-body text-sm text-muted-foreground max-w-xs">
+                        Please upload a clear photo of a plant (leaf, stem, or whole plant) so we can diagnose it.
                       </p>
+                      <Button variant="outline" size="sm" onClick={reset} className="mt-2 font-body text-xs tracking-wider uppercase">
+                        Upload another image
+                      </Button>
                     </div>
                   ) : (
                     <>

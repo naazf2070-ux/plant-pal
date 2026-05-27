@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Leaf, Shield, Menu, X, FlowerIcon, TreePine, LogOut, LogIn, MessageSquare } from "lucide-react";
+import { Leaf, Shield, Menu, X, FlowerIcon, TreePine, LogOut, LogIn, MessageSquare, Stethoscope } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ const publicLinks: { label: string; href: string }[] = [];
 const userLinks = [
   { label: "Search Plants", href: "/plants", icon: FlowerIcon },
   { label: "My Garden", href: "/garden", icon: TreePine },
+  { label: "Diagnose", href: "/diagnose", icon: Stethoscope },
   { label: "Feedback", href: "/feedback", icon: MessageSquare },
 ];
 

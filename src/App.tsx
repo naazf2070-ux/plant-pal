@@ -10,6 +10,7 @@ import Admin from "./pages/Admin";
 import Plants from "./pages/Plants";
 import Garden from "./pages/Garden";
 import Feedback from "./pages/Feedback";
+import Diagnose from "./pages/Diagnose";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/plants" element={<Plants />} />
             <Route path="/garden" element={<Garden />} />
             <Route path="/feedback" element={<Feedback />} />
+            <Route path="/diagnose" element={<Diagnose />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

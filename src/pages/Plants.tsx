@@ -103,13 +103,33 @@ const Plants = () => {
       return;
     }
     setAddingId(plantId);
-    const { error } = await supabase.from("garden_items").insert({ user_id: user.id, plant_id: plantId });
-    if (error) {
-      toast({ title: "Failed to add", description: error.message, variant: "destructive" });
-    } else {
-      setGardenIds((prev) => new Set([...prev, plantId]));
-      toast({ title: "Added to My Garden 🌿" });
+    const { data: inserted, error } = await supabase
+      .from("garden_items")
+      .insert({ user_id: user.id, plant_id: plantId })
+      .select("id")
+      .single();
+    if (error || !inserted) {
+      toast({ title: "Failed to add", description: error?.message, variant: "destructive" });
+      setAddingId(null);
+      return;
     }
+    setGardenIds((prev) => new Set([...prev, plantId]));
+    toast({ title: "Added to My Garden 🌿", description: "Generating your AI care plan…" });
+
+    // Fire-and-forget AI care plan + reminders
+    supabase.functions
+      .invoke("generate-care-plan", { body: { garden_item_id: inserted.id } })
+      .then(({ data, error: fnErr }) => {
+        if (fnErr) {
+          toast({ title: "Care plan unavailable", description: fnErr.message, variant: "destructive" });
+          return;
+        }
+        const count = (data as any)?.inserted ?? 0;
+        if (count > 0) {
+          toast({ title: `🌱 ${count} care reminders scheduled`, description: "Check your notifications bell." });
+        }
+      });
+
     setAddingId(null);
   };
 

@@ -11,6 +11,7 @@ import Plants from "./pages/Plants";
 import Garden from "./pages/Garden";
 import Feedback from "./pages/Feedback";
 import Diagnose from "./pages/Diagnose";
+import Dashboard from "./pages/Dashboard";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/garden" element={<Garden />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/diagnose" element={<Diagnose />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

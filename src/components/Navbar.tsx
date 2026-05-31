@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Leaf, Shield, Menu, X, FlowerIcon, TreePine, LogOut, LogIn, MessageSquare, Stethoscope } from "lucide-react";
+import { Leaf, Shield, Menu, X, FlowerIcon, TreePine, LogOut, LogIn, MessageSquare, Stethoscope, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import NotificationsBell from "@/components/NotificationsBell";
 const publicLinks: { label: string; href: string }[] = [];
 
 const userLinks = [
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Search Plants", href: "/plants", icon: FlowerIcon },
   { label: "My Garden", href: "/garden", icon: TreePine },
   { label: "Diagnose", href: "/diagnose", icon: Stethoscope },

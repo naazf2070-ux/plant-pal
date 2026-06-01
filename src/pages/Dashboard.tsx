@@ -132,10 +132,19 @@ const Dashboard = () => {
   const [waterings, setWaterings] = useState<WateringLog[]>([]);
   const [growths, setGrowths] = useState<GrowthLog[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [selectedPlant, setSelectedPlant] = useState<string>("all");
   const [month, setMonth] = useState(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
+
+  const filteredReminders = useMemo(
+    () =>
+      selectedPlant === "all"
+        ? reminders
+        : reminders.filter((r) => r.garden_item_id === selectedPlant),
+    [reminders, selectedPlant]
+  );
 
   useEffect(() => {
     if (!isLoading && !user) navigate("/auth");

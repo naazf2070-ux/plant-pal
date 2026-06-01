@@ -132,10 +132,19 @@ const Dashboard = () => {
   const [waterings, setWaterings] = useState<WateringLog[]>([]);
   const [growths, setGrowths] = useState<GrowthLog[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [selectedPlant, setSelectedPlant] = useState<string>("all");
   const [month, setMonth] = useState(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
+
+  const filteredReminders = useMemo(
+    () =>
+      selectedPlant === "all"
+        ? reminders
+        : reminders.filter((r) => r.garden_item_id === selectedPlant),
+    [reminders, selectedPlant]
+  );
 
   useEffect(() => {
     if (!isLoading && !user) navigate("/auth");
@@ -190,14 +199,14 @@ const Dashboard = () => {
 
   const upcomingReminders = useMemo(() => {
     const now = Date.now();
-    return reminders
+    return filteredReminders
       .filter((r) => !r.completed_at && new Date(r.due_at).getTime() >= now)
       .sort(
         (a, b) =>
           new Date(a.due_at).getTime() - new Date(b.due_at).getTime()
       )
       .slice(0, 5);
-  }, [reminders]);
+  }, [filteredReminders]);
 
   // Calendar grid
   const calendarDays = useMemo(() => {
@@ -215,13 +224,13 @@ const Dashboard = () => {
 
   const remindersByDay = useMemo(() => {
     const map = new Map<string, Reminder[]>();
-    reminders.forEach((r) => {
+    filteredReminders.forEach((r) => {
       const key = startOfDay(new Date(r.due_at)).toISOString();
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(r);
     });
     return map;
-  }, [reminders]);
+  }, [filteredReminders]);
 
   const badges: Badge[] = useMemo(() => {
     const firstHealthy = growths.some(
@@ -387,13 +396,28 @@ const Dashboard = () => {
             className="lg:col-span-2 rounded-2xl bg-card border border-border/40 p-6"
             style={{ boxShadow: "0 8px 32px hsl(0 0% 0% / 0.4)" }}
           >
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
               <div className="flex items-center gap-2">
                 <CalendarIcon className="w-4 h-4 text-primary" />
                 <h2 className="font-display text-lg font-semibold">
                   {monthName}
                 </h2>
               </div>
+              <select
+                value={selectedPlant}
+                onChange={(e) => setSelectedPlant(e.target.value)}
+                className="text-xs font-body bg-muted/40 hover:bg-muted text-foreground rounded-lg px-3 py-1.5 border border-border/40 focus:outline-none focus:ring-1 focus:ring-primary/60 cursor-pointer max-w-[180px] truncate"
+              >
+                <option value="all">All plants</option>
+                {items.map((it) => (
+                  <option key={it.id} value={it.id}>
+                    {it.plants?.name || "Unnamed plant"}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center justify-end mb-3">
+
               <div className="flex gap-1">
                 <button
                   onClick={() =>

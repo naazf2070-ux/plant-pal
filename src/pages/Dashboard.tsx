@@ -199,14 +199,14 @@ const Dashboard = () => {
 
   const upcomingReminders = useMemo(() => {
     const now = Date.now();
-    return reminders
+    return filteredReminders
       .filter((r) => !r.completed_at && new Date(r.due_at).getTime() >= now)
       .sort(
         (a, b) =>
           new Date(a.due_at).getTime() - new Date(b.due_at).getTime()
       )
       .slice(0, 5);
-  }, [reminders]);
+  }, [filteredReminders]);
 
   // Calendar grid
   const calendarDays = useMemo(() => {

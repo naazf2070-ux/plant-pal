@@ -224,13 +224,13 @@ const Dashboard = () => {
 
   const remindersByDay = useMemo(() => {
     const map = new Map<string, Reminder[]>();
-    reminders.forEach((r) => {
+    filteredReminders.forEach((r) => {
       const key = startOfDay(new Date(r.due_at)).toISOString();
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(r);
     });
     return map;
-  }, [reminders]);
+  }, [filteredReminders]);
 
   const badges: Badge[] = useMemo(() => {
     const firstHealthy = growths.some(

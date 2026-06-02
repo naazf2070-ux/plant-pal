@@ -63,10 +63,13 @@ const HEALTH_OPTIONS = [
 
 const GardenItemDrawer = ({ item, open, onOpenChange }: Props) => {
   const { user } = useAuth();
-  const [tab, setTab] = useState<"water" | "growth">("water");
+  const [tab, setTab] = useState<"benefits" | "water" | "growth">("benefits");
   const [wateringLogs, setWateringLogs] = useState<WateringLog[]>([]);
   const [growthLogs, setGrowthLogs] = useState<GrowthLog[]>([]);
   const [loading, setLoading] = useState(false);
+  const [benefits, setBenefits] = useState<{ icon: string; title: string; description: string }[] | null>(null);
+  const [benefitsLoading, setBenefitsLoading] = useState(false);
+
 
   // Watering form
   const [waterNote, setWaterNote] = useState("");

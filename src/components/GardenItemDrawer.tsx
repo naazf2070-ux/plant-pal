@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Droplets, TrendingUp, Leaf, Sun, Sprout, Plus, Trash2, Heart,
+  Droplets, TrendingUp, Leaf, Sun, Sprout, Plus, Trash2, Heart, Sparkles,
 } from "lucide-react";
+
 
 interface GardenItem {
   id: string;

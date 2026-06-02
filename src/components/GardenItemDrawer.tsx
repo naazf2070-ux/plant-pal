@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Droplets, TrendingUp, Leaf, Sun, Sprout, Plus, Trash2, Heart,
+  Droplets, TrendingUp, Leaf, Sun, Sprout, Plus, Trash2, Heart, Sparkles,
 } from "lucide-react";
+
 
 interface GardenItem {
   id: string;
@@ -62,10 +63,13 @@ const HEALTH_OPTIONS = [
 
 const GardenItemDrawer = ({ item, open, onOpenChange }: Props) => {
   const { user } = useAuth();
-  const [tab, setTab] = useState<"water" | "growth">("water");
+  const [tab, setTab] = useState<"benefits" | "water" | "growth">("benefits");
   const [wateringLogs, setWateringLogs] = useState<WateringLog[]>([]);
   const [growthLogs, setGrowthLogs] = useState<GrowthLog[]>([]);
   const [loading, setLoading] = useState(false);
+  const [benefits, setBenefits] = useState<{ icon: string; title: string; description: string }[] | null>(null);
+  const [benefitsLoading, setBenefitsLoading] = useState(false);
+
 
   // Watering form
   const [waterNote, setWaterNote] = useState("");
@@ -82,8 +86,33 @@ const GardenItemDrawer = ({ item, open, onOpenChange }: Props) => {
   useEffect(() => {
     if (item && open) {
       fetchLogs();
+      fetchBenefits();
     }
   }, [item, open]);
+
+  const fetchBenefits = async () => {
+    if (!item) return;
+    const cacheKey = `plant-benefits:${item.plant_id}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try { setBenefits(JSON.parse(cached)); return; } catch {}
+    }
+    setBenefitsLoading(true);
+    const { data, error } = await supabase.functions.invoke("generate-plant-benefits", {
+      body: {
+        name: item.plants.name,
+        latin: item.plants.latin,
+        category: item.plants.category,
+        description: item.plants.description,
+      },
+    });
+    if (!error && data?.benefits) {
+      setBenefits(data.benefits);
+      localStorage.setItem(cacheKey, JSON.stringify(data.benefits));
+    }
+    setBenefitsLoading(false);
+  };
+
 
   const fetchLogs = async () => {
     if (!item) return;
@@ -211,7 +240,7 @@ const GardenItemDrawer = ({ item, open, onOpenChange }: Props) => {
 
           {/* Tab switcher */}
           <div className="flex gap-2 mb-5">
-            {(["water", "growth"] as const).map((t) => (
+            {(["benefits", "water", "growth"] as const).map((t) => (
               <motion.button
                 key={t}
                 onClick={() => setTab(t)}
@@ -222,10 +251,60 @@ const GardenItemDrawer = ({ item, open, onOpenChange }: Props) => {
                     : "border-border text-muted-foreground hover:border-primary/50"
                 }`}
               >
-                {t === "water" ? "💧 Watering" : "📈 Growth"}
+                {t === "benefits" ? "✨ Benefits" : t === "water" ? "💧 Watering" : "📈 Growth"}
               </motion.button>
             ))}
           </div>
+
+          {/* Benefits tab */}
+          {tab === "benefits" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-body">
+                  Why {plant.name} is great for you
+                </p>
+              </div>
+
+              {benefitsLoading && !benefits && (
+                <div className="space-y-2">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="h-16 rounded-xl bg-muted/30 border border-border/30 animate-pulse" />
+                  ))}
+                </div>
+              )}
+
+              {benefits && benefits.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {benefits.map((b, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="flex items-start gap-3 p-3 rounded-xl bg-muted/40 border border-border/40"
+                    >
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-primary/10 text-base">
+                        {b.icon}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-display font-semibold text-foreground leading-tight">{b.title}</p>
+                        <p className="text-[11px] text-muted-foreground font-body mt-0.5 leading-relaxed">{b.description}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+
+              {!benefitsLoading && (!benefits || benefits.length === 0) && (
+                <p className="text-center text-muted-foreground/50 text-sm font-body py-6">
+                  Couldn't load benefits right now. Try reopening.
+                </p>
+              )}
+            </motion.div>
+          )}
+
+
 
           {/* Watering tab */}
           {tab === "water" && (

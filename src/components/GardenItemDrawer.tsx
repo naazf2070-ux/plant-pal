@@ -86,8 +86,33 @@ const GardenItemDrawer = ({ item, open, onOpenChange }: Props) => {
   useEffect(() => {
     if (item && open) {
       fetchLogs();
+      fetchBenefits();
     }
   }, [item, open]);
+
+  const fetchBenefits = async () => {
+    if (!item) return;
+    const cacheKey = `plant-benefits:${item.plant_id}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try { setBenefits(JSON.parse(cached)); return; } catch {}
+    }
+    setBenefitsLoading(true);
+    const { data, error } = await supabase.functions.invoke("generate-plant-benefits", {
+      body: {
+        name: item.plants.name,
+        latin: item.plants.latin,
+        category: item.plants.category,
+        description: item.plants.description,
+      },
+    });
+    if (!error && data?.benefits) {
+      setBenefits(data.benefits);
+      localStorage.setItem(cacheKey, JSON.stringify(data.benefits));
+    }
+    setBenefitsLoading(false);
+  };
+
 
   const fetchLogs = async () => {
     if (!item) return;
